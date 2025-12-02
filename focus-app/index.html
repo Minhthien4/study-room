@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Focus Space - Discipline & Deep Work</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          fontFamily: {
+            sans: ["Outfit", "sans-serif"],
+          },
+          extend: {
+            colors: {
+              glass: "rgba(20, 20, 20, 0.6)",
+              glassBorder: "rgba(255, 255, 255, 0.1)",
+              neonBlue: "#4f46e5",
+            },
+            boxShadow: {
+              neon: "0 0 10px rgba(79, 70, 229, 0.5), 0 0 20px rgba(79, 70, 229, 0.3)",
+            },
+            animation: {
+              "pulse-fast": "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              "bounce-slow": "bounce 3s infinite",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Icons & Effects -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+      /* Base Styles */
+      body {
+        background-color: #000000;
+        background-image: radial-gradient(
+            circle at 15% 50%,
+            rgba(76, 29, 149, 0.15),
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 85% 30%,
+            rgba(56, 189, 248, 0.1),
+            transparent 25%
+          );
+        color: #e2e8f0;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Glassmorphism Classes */
+      .glass-panel {
+        background: rgba(18, 18, 18, 0.65);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+
+      .glass-input {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        transition: all 0.2s;
+      }
+      .glass-input:focus {
+        border-color: rgba(99, 102, 241, 0.5);
+        outline: none;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      /* NEON RING EFFECT */
+      @property --angle {
+        syntax: "<angle>";
+        initial-value: 0deg;
+        inherits: false;
+      }
+      @keyframes spin {
+        to {
+          --angle: 360deg;
+        }
+      }
+
+      .neon-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px; /* Pill/Circle */
+        padding: 2px; /* Border width */
+        background: transparent;
+        z-index: 1;
+        isolation: isolate;
+      }
+
+      .neon-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 2px;
+        background: conic-gradient(
+          from var(--angle),
+          #ff0000,
+          #ff8c00,
+          #ffff00,
+          #008000,
+          #0000ff,
+          #4b0082,
+          #8f00ff,
+          #ff0000
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        animation: spin 3s linear infinite;
+      }
+
+      .neon-text-glow {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+
+      /* Utilities */
+      .tab-locked {
+        opacity: 0.3;
+        pointer-events: none;
+        filter: grayscale(1);
+        position: relative;
+      }
+
+      /* Theme Overlays */
+      .theme-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        opacity: 0.15;
+        pointer-events: none;
+      }
+      .theme-indigo {
+        background: radial-gradient(
+          circle at top right,
+          #4f46e5,
+          transparent 60%
+        );
+      }
+      .theme-cyber {
+        background: radial-gradient(
+            circle at top right,
+            #ec4899,
+            transparent 60%
+          ),
+          radial-gradient(circle at bottom left, #06b6d4, transparent 60%);
+      }
+      .theme-forest {
+        background: radial-gradient(
+          circle at top right,
+          #10b981,
+          transparent 60%
+        );
+      }
+      .theme-sunset {
+        background: radial-gradient(
+            circle at top right,
+            #f97316,
+            transparent 60%
+          ),
+          radial-gradient(circle at bottom left, #ef4444, transparent 60%);
+      }
+    </style>
+  </head>
+  <body
+    class="font-sans antialiased selection:bg-indigo-500 selection:text-white"
+  >
+    <div id="app" class="h-screen flex flex-col overflow-hidden">
+      <!-- Content injected via JS -->
+    </div>
+
+    <script>
+      // --- 1. STATE & UTILS ---
+
+      const DEFAULT_STATE = {
+        rooms: [],
+        activeRoomId: null,
+        isDemoMode: false,
+        settings: {
+          weekStart: getWeekNumber(new Date()),
+        },
+      };
+
+      // Date Helpers
+      function getWeekNumber(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+      }
+
+      function getCurrentWeekDates() {
+        const curr = new Date();
+        const dayOffset = curr.getDay() === 0 ? -6 : 1;
+        const currentMonday = new Date(
+          curr.setDate(curr.getDate() - curr.getDay() + dayOffset)
+        );
+        const dates = [];
+
+        for (let i = 0; i < 7; i++) {
+          const day = new Date(currentMonday);
+          day.setDate(currentMonday.getDate() + i);
+          dates.push(day.toISOString().split("T")[0]);
+        }
+        return dates;
+      }
+
+      function getCurrentDayIndex() {
+        const day = new Date().getDay();
+        return day === 0 ? 6 : day - 1;
+      }
+
+      function getTodayString() {
+        return new Date().toISOString().split("T")[0];
+      }
+
+      // --- NEW: Helper to get History Record safely ---
+      function getHistoryRecord(history, dateStr) {
+        const record = history[dateStr];
+        if (!record) return null;
+        if (typeof record === "boolean") {
+          return { completed: true, type: "scheduled" }; // Default legacy data
+        }
+        return record;
+      }
+
+      // --- STRICT STREAK LOGIC (REQ 1) ---
+      function calculateStreak(room) {
+        let streak = 0;
+        // Iterate backwards 365 days
+        for (let i = 0; i < 365; i++) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toISOString().split("T")[0];
+
+          const jsDay = d.getDay();
+          const scheduleIdx = jsDay === 0 ? 6 : jsDay - 1;
+
+          const isScheduled = room.schedule[scheduleIdx] === 1;
+          const record = getHistoryRecord(room.history, dateStr);
+          const isDone = record && record.completed;
+
+          // Case: Today (i=0)
+          if (i === 0) {
+            // Today only counts if done AND scheduled.
+            // If not done yet, or if it's extra, we don't count it, but we don't break either.
+            if (isDone && isScheduled) {
+              streak++;
+            }
+            continue;
+          }
+
+          // Case: Past Days
+          if (isScheduled) {
+            if (isDone) {
+              streak++;
+            } else {
+              // Scheduled but NOT done -> Break Streak
+              break;
+            }
+          } else {
+            // Not Scheduled (Day Off)
+            // If Extra done (isDone=true) -> Don't increment streak (REQ: "không tính tăng cường")
+            // If Not done -> Just a rest day
+            // In both cases, we continue to check the day before without breaking or adding.
+            continue;
+          }
+        }
+        return streak;
+      }
+
+      // Persistence
+      let state = JSON.parse(
+        localStorage.getItem("focus_space_v2") || JSON.stringify(DEFAULT_STATE)
+      );
+
+      function saveState() {
+        localStorage.setItem("focus_space_v2", JSON.stringify(state));
+      }
+
+      let timerInterval = null;
+      let timerState = {
+        isRunning: false,
+        isPaused: false,
+        timeLeft: 0,
+        originalTime: 0,
+      };
+
+      // --- 2. CORE RENDER ---
+
+      const app = document.getElementById("app");
+
+      function render() {
+        const currentWeek = getWeekNumber(new Date());
+        if (state.settings.weekStart !== currentWeek) {
+          state.settings.weekStart = currentWeek;
+          saveState();
+        }
+
+        if (state.activeRoomId) {
+          renderRoom();
+        } else {
+          renderDashboard();
+        }
+        lucide.createIcons();
+      }
+
+      // --- 3. DASHBOARD ---
+
+      function renderDashboard() {
+        const todayIdx = getCurrentDayIndex();
+        const weekDates = getCurrentWeekDates();
+        const daysLabels = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+
+        const roomsHtml = state.rooms
+          .map((room) => {
+            const streak = calculateStreak(room);
+
+            // Progress Calculation (Weekly)
+            let totalScheduled = 0;
+            let totalDone = 0;
+
+            weekDates.forEach((dateStr, idx) => {
+              const isScheduled = room.schedule[idx] === 1;
+              const record = getHistoryRecord(room.history, dateStr);
+
+              if (isScheduled) {
+                totalScheduled++;
+                if (record && record.completed) {
+                  totalDone++;
+                }
+              }
+            });
+
+            const progress =
+              totalScheduled === 0
+                ? 0
+                : Math.round((totalDone / totalScheduled) * 100);
+
+            // Schedule Viz (REQ 2: Clearer Statuses)
+            const scheduleHtml = daysLabels
+              .map((label, idx) => {
+                const isScheduled = room.schedule[idx] === 1;
+                const dateStr = weekDates[idx];
+                const record = getHistoryRecord(room.history, dateStr);
+                const isDone = record?.completed;
+                const isPast = idx < todayIdx;
+                const isToday = idx === todayIdx;
+
+                let colorClass = "";
+                let icon = "";
+                let tooltip = "";
+
+                if (isDone) {
+                  // 1. DONE
+                  if (record.type === "extra") {
+                    colorClass =
+                      "bg-purple-900/40 border-purple-500 text-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.4)]";
+                    icon = `<i data-lucide="star" class="w-3 h-3 fill-current"></i>`;
+                    tooltip = "Tăng cường";
+                  } else {
+                    colorClass =
+                      "bg-green-500 border-green-400 text-black shadow-[0_0_8px_rgba(34,197,94,0.6)]";
+                    icon = `<i data-lucide="check" class="w-3 h-3 font-bold"></i>`;
+                    tooltip = "Hoàn thành";
+                  }
+                } else {
+                  // NOT DONE
+                  if (isPast) {
+                    if (isScheduled) {
+                      // 2. BÙNG (Past + Scheduled)
+                      colorClass = "bg-red-900/20 border-red-800 text-red-500";
+                      icon = `<i data-lucide="x" class="w-3.5 h-3.5"></i>`;
+                      tooltip = "Bùng lịch";
+                    } else {
+                      // 3. NGÀY NGHỈ ĐÃ QUA (Past + No Schedule)
+                      colorClass =
+                        "bg-transparent border-gray-800 text-gray-700";
+                      icon = `<i data-lucide="minus" class="w-3 h-3 opacity-50"></i>`;
+                      tooltip = "Đã qua";
+                    }
+                  } else {
+                    // TODAY / FUTURE
+                    if (isScheduled) {
+                      if (isToday) {
+                        // Today Pending
+                        colorClass =
+                          "bg-yellow-500/10 border-yellow-500 text-yellow-500 animate-pulse-fast";
+                        icon = `<div class="w-2 h-2 rounded-full bg-current"></div>`;
+                        tooltip = "Hôm nay";
+                      } else {
+                        // 4. LỊCH SẮP TỚI (Future + Scheduled)
+                        colorClass =
+                          "bg-indigo-900/20 border-indigo-500/50 text-indigo-400";
+                        icon = `<div class="w-1.5 h-1.5 rounded-full bg-current"></div>`;
+                        tooltip = "Sắp tới";
+                      }
+                    } else {
+                      // 5. NGÀY KHÔNG CÓ LỊCH (Future + No Schedule)
+                      colorClass =
+                        "bg-gray-900/50 border-gray-800 text-gray-700";
+                      icon = `<div class="w-1 h-1 rounded-full bg-current opacity-30"></div>`;
+                      tooltip = "Nghỉ";
+                    }
+                  }
+                }
+
+                return `
+                        <div class="flex flex-col items-center gap-2 group/day relative" title="${tooltip}">
+                            <span class="text-[9px] font-bold ${
+                              isToday ? "text-yellow-500" : "text-gray-500"
+                            } tracking-wider">${label}</span>
+                            <div class="w-6 h-6 rounded-full border flex items-center justify-center transition-all ${colorClass}">
+                                ${icon}
+                            </div>
+                        </div>
+                    `;
+              })
+              .join("");
+
+            return `
+                    <div onclick="enterRoom(${room.id})" 
+                        class="glass-panel rounded-2xl p-6 cursor-pointer group hover:bg-white/5 transition-all duration-300 border-l-4 border-l-transparent hover:border-l-indigo-500 relative overflow-hidden">
+                        
+                        <button onclick="event.stopPropagation(); deleteRoom(${
+                          room.id
+                        })" class="absolute top-4 right-4 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition z-10">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+
+                        <!-- Streak Badge -->
+                        <div class="absolute top-4 left-4 flex items-center gap-1 text-[10px] font-bold ${
+                          streak > 0
+                            ? "text-orange-400 bg-orange-400/10 border-orange-400/20"
+                            : "text-gray-600 bg-gray-800/50 border-gray-700"
+                        } px-2 py-0.5 rounded-full border">
+                            <i data-lucide="flame" class="w-3 h-3 ${
+                              streak > 0
+                                ? "fill-current animate-bounce-slow"
+                                : "text-gray-600"
+                            }"></i> ${streak}
+                        </div>
+
+                        <!-- Neon Name -->
+                        <div class="flex justify-center mb-6 mt-5">
+                            <div class="neon-card">
+                                <div class="bg-gray-900 rounded-full px-8 py-2.5 relative z-10">
+                                    <span class="text-sm font-bold uppercase tracking-[0.15em] text-white neon-text-glow">${
+                                      room.name
+                                    }</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Schedule & Progress -->
+                        <div class="flex justify-between gap-1 mb-6 px-1">
+                            ${scheduleHtml}
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-500" style="width: ${progress}%"></div>
+                            </div>
+                            <span class="text-xs font-mono text-gray-400 w-8 text-right">${progress}%</span>
+                        </div>
+                    </div>
+                `;
+          })
+          .join("");
+
+        app.innerHTML = `
+                <div class="flex-1 flex flex-col p-8 max-w-7xl mx-auto w-full h-full">
+                    <header class="flex justify-between items-center mb-10 flex-shrink-0">
+                        <div>
+                            <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-gray-500">
+                                Focus Space
+                            </h1>
+                            <p class="text-sm text-gray-500 mt-1">Discipline equals Freedom</p>
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <!-- USER PROFILE -->
+                            <div class="flex items-center gap-3 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:border-indigo-500/50 transition">
+                                <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-lg shadow-indigo-500/40">T</div>
+                                <div class="flex flex-col pr-2">
+                                    <span class="text-xs font-bold text-gray-200">Thiện</span>
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-wider">Owner</span>
+                                </div>
+                            </div>
+
+                            <label class="flex items-center gap-3 px-4 py-2 rounded-full glass-panel cursor-pointer hover:bg-white/5 transition select-none">
+                                <div class="relative">
+                                    <input type="checkbox" class="sr-only peer" ${
+                                      state.isDemoMode ? "checked" : ""
+                                    } onchange="toggleDemo()">
+                                    <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </div>
+                                <span class="text-xs font-bold uppercase tracking-wider ${
+                                  state.isDemoMode
+                                    ? "text-indigo-400"
+                                    : "text-gray-500"
+                                }">Demo Mode</span>
+                            </label>
+                        </div>
+                    </header>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto pb-10 pr-2">
+                        ${roomsHtml}
+                        
+                        <!-- Add Room Card -->
+                        <div class="glass-panel rounded-2xl p-6 flex flex-col items-center justify-center min-h-[240px] border-dashed border-gray-700 hover:border-indigo-500 transition group gap-4">
+                            <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 text-gray-500 shadow-lg">
+                                <i data-lucide="plus" class="w-7 h-7"></i>
+                            </div>
+                            <input type="text" id="newRoomName" placeholder="Tên môn học..." 
+                                class="bg-transparent border-b border-gray-600 text-center text-sm text-white focus:border-indigo-500 focus:outline-none py-1 w-3/4 placeholder-gray-600 transition">
+                            <button onclick="createRoom()" class="text-xs font-bold uppercase tracking-wider text-gray-500 group-hover:text-indigo-400">Tạo mới</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+      }
+
+      // --- 4. ROOM VIEW ---
+
+      let currentTab = "plan";
+
+      function enterRoom(id) {
+        state.activeRoomId = id;
+        const room = state.rooms.find((r) => r.id === id);
+
+        // Timer Reset
+        timerState = {
+          isRunning: false,
+          isPaused: false,
+          timeLeft: room.timerDuration * 60,
+          originalTime: room.timerDuration * 60,
+        };
+        clearInterval(timerInterval);
+        renderRoom();
+      }
+
+      function renderRoom() {
+        const room = state.rooms.find((r) => r.id === state.activeRoomId);
+        if (!room) return;
+
+        const streak = calculateStreak(room); // Calculate here for Sidebar
+        const todayIdx = getCurrentDayIndex();
+        const hasSchedule = room.schedule[todayIdx] === 1;
+        const record = getHistoryRecord(room.history, getTodayString());
+        const isDone = record?.completed;
+
+        // SMART LOGIC:
+        let btnLabel = "Bắt đầu";
+        let btnIcon = "play";
+        let btnClass =
+          "bg-white text-black hover:bg-indigo-50 shadow-[0_0_20px_rgba(255,255,255,0.2)]";
+        let canStart = true;
+        let isExtraSession = false;
+
+        if (isDone) {
+          canStart = false;
+          if (state.isDemoMode) canStart = true;
+        } else if (!hasSchedule) {
+          // Not scheduled
+          btnLabel = "Extra Focus";
+          btnIcon = "zap";
+          btnClass =
+            "bg-purple-600 text-white hover:bg-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.4)]";
+          isExtraSession = true;
+        }
+
+        const areTabsLocked = timerState.isRunning && !timerState.isPaused;
+
+        // Timer Display
+        const m = Math.floor(timerState.timeLeft / 60)
+          .toString()
+          .padStart(2, "0");
+        const s = (timerState.timeLeft % 60).toString().padStart(2, "0");
+
+        // --- Sidebar Content ---
+        let tabContent = "";
+
+        if (currentTab === "plan") {
+          const days = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+          const canEditSchedule = state.isDemoMode || new Date().getDay() === 0;
+
+          tabContent = `
+                    <div class="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Mục tiêu hôm nay</h3>
+                            <div class="flex gap-2">
+                                <input type="text" value="${
+                                  room.dailyGoal || ""
+                                }" oninput="updateRoomField('dailyGoal', this.value)"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm" placeholder="Mục tiêu nhỏ...">
+                                ${
+                                  !timerState.isRunning && !isDone
+                                    ? `<button onclick="manualCheckIn()" class="p-2 rounded-lg bg-gray-800 hover:bg-green-600 hover:text-white text-gray-400 transition" title="Check-in nhanh"><i data-lucide="check-circle" class="w-4 h-4"></i></button>`
+                                    : ""
+                                }
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Lịch định kỳ</h3>
+                                ${
+                                  !canEditSchedule
+                                    ? '<i data-lucide="lock" class="w-3 h-3 text-gray-600"></i>'
+                                    : ""
+                                }
+                            </div>
+                            <div class="grid grid-cols-7 gap-1">
+                                ${days
+                                  .map(
+                                    (d, i) => `
+                                    <button onclick="${
+                                      canEditSchedule
+                                        ? `toggleSchedule(${i})`
+                                        : ""
+                                    }" 
+                                        class="aspect-square rounded flex items-center justify-center text-[10px] font-bold transition-all ${
+                                          room.schedule[i]
+                                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+                                            : "bg-gray-800 text-gray-500 hover:bg-gray-700"
+                                        } ${
+                                      !canEditSchedule
+                                        ? "cursor-not-allowed opacity-70"
+                                        : ""
+                                    }">
+                                        ${d}
+                                    </button>
+                                `
+                                  )
+                                  .join("")}
+                            </div>
+                            <div class="mt-2 text-[10px] text-gray-500 text-center bg-white/5 rounded py-1 border border-white/5">
+                                ${
+                                  canEditSchedule
+                                    ? '<span class="text-green-400">Đang mở khóa chỉnh sửa</span>'
+                                    : "Kỷ luật: Chỉ sửa lịch vào Chủ Nhật"
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+        } else if (currentTab === "links") {
+          tabContent = `
+                    <div class="space-y-4 animate-in fade-in slide-in-from-left-4 duration-300">
+                        <div class="p-4 bg-white/5 rounded-xl border border-white/10 shadow-lg">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <i data-lucide="plus-circle" class="w-3 h-3"></i> Thêm tài liệu mới
+                            </h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Tên hiển thị</label>
+                                    <input type="text" id="linkTitle" placeholder="Ví dụ: Slide bài giảng..." class="glass-input w-full rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Đường dẫn (URL)</label>
+                                    <input type="text" id="linkUrl" placeholder="https://..." class="glass-input w-full rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500">
+                                </div>
+                                <button onclick="addLink()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-xs transition shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2">
+                                    <i data-lucide="save" class="w-3 h-3"></i> Lưu Tài Liệu
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 max-h-[250px] overflow-y-auto pt-2">
+                            <h3 class="text-[10px] font-bold text-gray-500 uppercase px-1">Danh sách (${
+                              room.links.length
+                            })</h3>
+                            ${
+                              room.links.length === 0
+                                ? '<div class="text-center py-6 border border-dashed border-gray-800 rounded-lg"><p class="text-xs text-gray-600">Chưa có tài liệu nào</p></div>'
+                                : room.links
+                                    .map(
+                                      (l, i) => `
+                                <div class="flex items-center justify-between group p-3 rounded-lg hover:bg-white/5 transition border border-transparent hover:border-white/10 bg-white/[0.02]">
+                                    <a href="${l.url}" target="_blank" class="flex items-center gap-3 text-sm text-indigo-300 hover:text-indigo-100 truncate flex-1">
+                                        <div class="w-8 h-8 rounded bg-indigo-500/10 flex items-center justify-center flex-shrink-0 text-indigo-400">
+                                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                                        </div>
+                                        <div class="flex flex-col truncate">
+                                            <span class="font-medium truncate">${l.title}</span>
+                                            <span class="text-[10px] text-gray-500 truncate">${l.url}</span>
+                                        </div>
+                                    </a>
+                                    <button onclick="deleteLink(${i})" class="text-gray-600 hover:text-red-400 p-2 opacity-0 group-hover:opacity-100 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                </div>
+                            `
+                                    )
+                                    .join("")
+                            }
+                        </div>
+                    </div>
+                `;
+        } else if (currentTab === "music") {
+          tabContent = `
+                    <div class="space-y-4 animate-in fade-in slide-in-from-left-4 duration-300">
+                        <!-- Player -->
+                        <div id="youtube-embed" class="aspect-video bg-black rounded-xl border border-gray-800 overflow-hidden flex items-center justify-center relative shadow-lg">
+                            <div class="text-center text-gray-600 flex flex-col items-center gap-2">
+                                <div class="w-12 h-12 rounded-full bg-gray-900 flex items-center justify-center">
+                                    <i data-lucide="music" class="w-5 h-5 opacity-50"></i>
+                                </div>
+                                <span class="text-xs font-medium">Chọn bài hát bên dưới để phát</span>
+                            </div>
+                        </div>
+
+                        <!-- Add Form -->
+                         <div class="p-4 bg-white/5 rounded-xl border border-white/10 shadow-lg">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <i data-lucide="plus-circle" class="w-3 h-3"></i> Thêm nhạc Youtube
+                            </h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Tên bài hát</label>
+                                    <input type="text" id="musicName" placeholder="Ví dụ: Lofi Hip Hop..." class="glass-input w-full rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Link Youtube</label>
+                                    <input type="text" id="musicUrl" placeholder="https://youtube.com/watch?v=..." class="glass-input w-full rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500">
+                                </div>
+                                <button onclick="addMusic()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-xs transition shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2">
+                                    <i data-lucide="list-music" class="w-3 h-3"></i> Thêm vào Playlist
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- List -->
+                        <div class="space-y-2 max-h-[200px] overflow-y-auto pt-2">
+                             <h3 class="text-[10px] font-bold text-gray-500 uppercase px-1">Playlist (${
+                               room.music.length
+                             })</h3>
+                             ${
+                               room.music.length === 0
+                                 ? '<div class="text-center py-6 border border-dashed border-gray-800 rounded-lg"><p class="text-xs text-gray-600">Playlist trống</p></div>'
+                                 : room.music
+                                     .map(
+                                       (m, i) => `
+                                <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/10 cursor-pointer group transition bg-white/[0.02] border border-transparent hover:border-indigo-500/30" onclick="playMusic('${m.id}')">
+                                    <div class="flex items-center gap-3 overflow-hidden">
+                                        <div class="w-8 h-8 rounded bg-indigo-500/20 flex items-center justify-center text-indigo-400 flex-shrink-0 group-hover:scale-110 transition"><i data-lucide="play" class="w-3.5 h-3.5 ml-0.5"></i></div>
+                                        <span class="text-xs font-medium text-gray-300 group-hover:text-white truncate">${m.name}</span>
+                                    </div>
+                                    <button onclick="event.stopPropagation(); deleteMusic(${i})" class="text-gray-600 hover:text-red-400 p-2 opacity-0 group-hover:opacity-100 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                </div>
+                            `
+                                     )
+                                     .join("")
+                             }
+                        </div>
+                    </div>
+                `;
+        } else if (currentTab === "settings") {
+          const colors = [
+            { val: "#e2e8f0", label: "Trắng" },
+            { val: "#fbbf24", label: "Vàng" },
+            { val: "#4ade80", label: "Xanh lá" },
+            { val: "#f472b6", label: "Hồng" },
+          ];
+
+          tabContent = `
+                     <div class="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
+                        <!-- Timer Setup -->
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase block mb-2">Thời gian Focus (Phút)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="number" value="${
+                                  room.timerDuration
+                                }" onchange="updateTimerSetting(this.value)" 
+                                    class="glass-input w-20 rounded-lg py-2 text-center font-mono text-lg font-bold text-white">
+                                <div class="flex gap-2">
+                                    <button onclick="adjustTimer(5)" class="px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-xs text-gray-300">+5m</button>
+                                    <button onclick="adjustTimer(-5)" class="px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-xs text-gray-300">-5m</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Themes -->
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase block mb-2">Chủ đề phòng</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="updateRoomField('theme', 'theme-indigo'); renderRoom();" class="h-10 rounded-lg bg-gradient-to-br from-indigo-900 to-black border ${
+                                  room.theme === "theme-indigo"
+                                    ? "border-white shadow-neon"
+                                    : "border-gray-700"
+                                } text-[10px] text-white/50">Indigo</button>
+                                <button onclick="updateRoomField('theme', 'theme-cyber'); renderRoom();" class="h-10 rounded-lg bg-gradient-to-br from-pink-900 to-cyan-900 border ${
+                                  room.theme === "theme-cyber"
+                                    ? "border-white shadow-neon"
+                                    : "border-gray-700"
+                                } text-[10px] text-white/50">Cyber</button>
+                                <button onclick="updateRoomField('theme', 'theme-forest'); renderRoom();" class="h-10 rounded-lg bg-gradient-to-br from-emerald-900 to-black border ${
+                                  room.theme === "theme-forest"
+                                    ? "border-white shadow-neon"
+                                    : "border-gray-700"
+                                } text-[10px] text-white/50">Forest</button>
+                                <button onclick="updateRoomField('theme', 'theme-sunset'); renderRoom();" class="h-10 rounded-lg bg-gradient-to-br from-orange-900 to-red-900 border ${
+                                  room.theme === "theme-sunset"
+                                    ? "border-white shadow-neon"
+                                    : "border-gray-700"
+                                } text-[10px] text-white/50">Sunset</button>
+                            </div>
+                        </div>
+
+                        <!-- Font Color -->
+                         <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase block mb-2">Màu chữ ghi chú</label>
+                            <div class="flex gap-2">
+                                ${colors
+                                  .map(
+                                    (c) => `
+                                    <button onclick="updateRoomField('textColor', '${
+                                      c.val
+                                    }'); renderRoom();" 
+                                        class="w-8 h-8 rounded-full border-2 transition ${
+                                          room.textColor === c.val
+                                            ? "border-white scale-110"
+                                            : "border-transparent hover:border-gray-500"
+                                        }"
+                                        style="background-color: ${c.val}">
+                                    </button>
+                                `
+                                  )
+                                  .join("")}
+                            </div>
+                        </div>
+                     </div>
+                `;
+        }
+
+        // --- HTML Structure ---
+        app.innerHTML = `
+                <div class="flex h-full relative overflow-hidden bg-black transition-colors duration-700">
+                    <!-- Dynamic Theme Background Overlay -->
+                    <div class="theme-overlay ${
+                      room.theme || "theme-indigo"
+                    }"></div>
+
+                    <!-- Sidebar -->
+                    <aside class="w-[340px] glass-panel border-r border-white/10 flex flex-col z-20 shadow-2xl relative">
+                        <!-- Top Nav -->
+                        <div class="h-16 flex items-center justify-between px-6 border-b border-white/5">
+                            <button onclick="backToDashboard()" class="flex items-center gap-2 text-gray-400 hover:text-white transition group">
+                                <div class="p-1.5 rounded-md bg-white/5 group-hover:bg-indigo-600 transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></div>
+                                <span class="text-xs font-bold uppercase tracking-wider">Trở về</span>
+                            </button>
+                            <div class="h-2 w-2 rounded-full ${
+                              state.isDemoMode
+                                ? "bg-green-500 shadow-[0_0_10px_#22c55e]"
+                                : "bg-gray-700"
+                            }"></div>
+                        </div>
+
+                        <!-- Hero Section (Name & Timer) -->
+                        <div class="flex flex-col items-center justify-center py-8 border-b border-white/5 relative bg-gradient-to-b from-white/5 to-transparent">
+                            <!-- Room Name -->
+                            <div class="mb-2 text-center px-4">
+                                <h2 class="text-2xl font-black text-white tracking-wide drop-shadow-lg">${
+                                  room.name
+                                }</h2>
+                            </div>
+
+                            <!-- Streak Badge Inside Room (NEW) -->
+                            <div class="mb-6 flex items-center gap-1.5 text-[10px] font-bold ${
+                              streak > 0
+                                ? "text-orange-400 bg-orange-400/10 border-orange-400/20"
+                                : "text-gray-500 bg-white/5 border-white/5"
+                            } px-3 py-1 rounded-full border">
+                                <i data-lucide="flame" class="w-3 h-3 ${
+                                  streak > 0
+                                    ? "fill-current animate-bounce-slow"
+                                    : "text-gray-500"
+                                }"></i>
+                                <span>${streak} ngày liên tục</span>
+                            </div>
+                            
+                            <!-- Timer Ring -->
+                            <div class="relative w-48 h-48 flex items-center justify-center mb-6">
+                                <div class="absolute inset-0 rounded-full border border-white/10"></div>
+                                <!-- Neon Spinner Only when running -->
+                                ${
+                                  timerState.isRunning && !timerState.isPaused
+                                    ? `<div class="absolute inset-0 rounded-full border-t-2 ${
+                                        isExtraSession
+                                          ? "border-purple-500"
+                                          : "border-indigo-500"
+                                      } animate-spin" style="animation-duration: 3s"></div>`
+                                    : `<div class="absolute inset-0 rounded-full border-2 border-dashed border-white/20"></div>`
+                                }
+                                <div class="text-6xl font-mono font-bold text-white tracking-tighter drop-shadow-2xl tabular-nums">
+                                    ${m}:${s}
+                                </div>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="flex gap-4 z-10">
+                                ${
+                                  !timerState.isRunning
+                                    ? `<button onclick="startTimer()" ${
+                                        !canStart ? "disabled" : ""
+                                      } 
+                                        class="h-12 px-8 rounded-full font-bold uppercase tracking-wider transition-all transform active:scale-95 flex items-center gap-2 ${
+                                          canStart
+                                            ? btnClass
+                                            : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
+                                        }">
+                                        ${
+                                          canStart
+                                            ? `<i data-lucide="${btnIcon}" class="w-4 h-4 fill-current"></i> ${btnLabel}`
+                                            : '<i data-lucide="check" class="w-4 h-4"></i> Đã xong'
+                                        }
+                                    </button>`
+                                    : `<button onclick="togglePause()" 
+                                        class="h-12 px-8 rounded-full font-bold uppercase tracking-wider transition-all transform active:scale-95 flex items-center gap-2 text-white shadow-lg
+                                        ${
+                                          timerState.isPaused
+                                            ? "bg-green-600 hover:bg-green-500"
+                                            : "bg-yellow-600 hover:bg-yellow-500"
+                                        }">
+                                        ${
+                                          timerState.isPaused
+                                            ? '<i data-lucide="play" class="w-4 h-4 fill-current"></i> Tiếp tục'
+                                            : '<i data-lucide="pause" class="w-4 h-4 fill-current"></i> Tạm dừng'
+                                        }
+                                    </button>
+                                     <button onclick="stopTimer()" class="h-12 w-12 rounded-full bg-red-900/50 border border-red-500/50 hover:bg-red-600 hover:border-red-500 flex items-center justify-center text-red-200 hover:text-white transition">
+                                        <i data-lucide="square" class="w-4 h-4 fill-current"></i>
+                                     </button>`
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Tabs Nav -->
+                        <div class="flex p-2 gap-1 ${
+                          areTabsLocked ? "tab-locked" : ""
+                        }">
+                            <button onclick="setTab('plan')" class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition ${
+                              currentTab === "plan"
+                                ? "bg-white/10 text-white"
+                                : "text-gray-500 hover:bg-white/5"
+                            }">Plan</button>
+                            <button onclick="setTab('links')" class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition ${
+                              currentTab === "links"
+                                ? "bg-white/10 text-white"
+                                : "text-gray-500 hover:bg-white/5"
+                            }">Links</button>
+                            <button onclick="setTab('music')" class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition ${
+                              currentTab === "music"
+                                ? "bg-white/10 text-white"
+                                : "text-gray-500 hover:bg-white/5"
+                            }">Music</button>
+                            <button onclick="setTab('settings')" class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition ${
+                              currentTab === "settings"
+                                ? "bg-white/10 text-white"
+                                : "text-gray-500 hover:bg-white/5"
+                            }">Set</button>
+                        </div>
+
+                        <!-- Tab Body -->
+                        <div class="flex-1 p-5 overflow-y-auto relative ${
+                          areTabsLocked ? "tab-locked" : ""
+                        }">
+                             ${
+                               areTabsLocked
+                                 ? `<div class="absolute inset-0 flex items-center justify-center z-50">
+                                    <div class="flex flex-col items-center gap-2 text-gray-500">
+                                        <i data-lucide="lock" class="w-8 h-8"></i>
+                                        <span class="text-xs font-bold">Focus Mode Enabled</span>
+                                    </div>
+                                </div>`
+                                 : ""
+                             }
+                            ${tabContent}
+                        </div>
+                    </aside>
+
+                    <!-- Main Editor -->
+                    <main class="flex-1 flex flex-col relative z-10">
+                        <div class="flex-1 p-10">
+                            <textarea id="mainEditor" spellcheck="false"
+                                class="w-full h-full bg-transparent resize-none text-lg leading-loose p-0 border-none focus:ring-0 custom-scrollbar placeholder-white/10 transition-colors"
+                                style="color: ${room.textColor || "#e2e8f0"}"
+                                placeholder="Viết những điều bạn học được hôm nay..."
+                                oninput="updateRoomField('notes', this.value)">${
+                                  room.notes || ""
+                                }</textarea>
+                        </div>
+                    </main>
+                </div>
+            `;
+      }
+
+      // --- 5. LOGIC HANDLERS ---
+
+      // Dashboard
+      window.createRoom = () => {
+        const name = document.getElementById("newRoomName").value.trim();
+        if (!name) return;
+        state.rooms.push({
+          id: Date.now(),
+          name,
+          schedule: [0, 0, 0, 0, 0, 0, 0],
+          history: {},
+          notes: "",
+          links: [],
+          music: [],
+          theme: "theme-indigo",
+          textColor: "#e2e8f0",
+          timerDuration: 25,
+          dailyGoal: "",
+        });
+        saveState();
+        render();
+      };
+
+      window.deleteRoom = (id) => {
+        if (confirm("Xóa môn học này?")) {
+          state.rooms = state.rooms.filter((r) => r.id !== id);
+          saveState();
+          render();
+        }
+      };
+
+      window.toggleDemo = () => {
+        state.isDemoMode = !state.isDemoMode;
+        saveState();
+        render();
+      };
+
+      // Room
+      window.backToDashboard = () => {
+        if (timerState.isRunning && !state.isDemoMode) {
+          if (!confirm("Đồng hồ đang chạy. Thoát sẽ hủy phiên học?")) return;
+        }
+        clearInterval(timerInterval);
+        state.activeRoomId = null;
+        render();
+      };
+
+      window.setTab = (t) => {
+        currentTab = t;
+        renderRoom();
+      };
+
+      window.updateRoomField = (field, val) => {
+        const room = state.rooms.find((r) => r.id === state.activeRoomId);
+        room[field] = val;
+        saveState();
+        if (field === "theme" || field === "textColor") renderRoom();
+      };
+
+      window.toggleSchedule = (idx) => {
+        const room = state.rooms.find((r) => r.id === state.activeRoomId);
+        room.schedule[idx] = room.schedule[idx] ? 0 : 1;
+        saveState();
+        renderRoom();
+      };
+
+      // --- UPDATED: Save History with TYPE ---
+      function saveHistory(room, type) {
+        const dateStr = getTodayString();
+        room.history[dateStr] = {
+          completed: true,
+          type: type, // 'scheduled' or 'extra'
+        };
+        saveState();
+      }
+
+      window.manualCheckIn = () => {
+        const room = state.rooms.find((r) => r.id === state.activeRoomId);
+        const isScheduled = room.schedule[getCurrentDayIndex()] === 1;
+        const type = isScheduled ? "scheduled" : "extra";
+
+        saveHistory(room, type);
+
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        renderRoom();
+      };
+
+      // Timer
+      window.startTimer = () => {
+        timerState.isRunning = true;
+        timerState.isPaused = false;
+        renderRoom(); // Locks UI immediately
+
+        timerInterval = setInterval(() => {
+          if (!timerState.isPaused) {
+            timerState.timeLeft--;
+            // DOM update optimized
+            if (document.querySelector(".text-6xl")) {
+              const m = Math.floor(timerState.timeLeft / 60)
+                .toString()
+                .padStart(2, "0");
+              const s = (timerState.timeLeft % 60).toString().padStart(2, "0");
+              document.querySelector(".text-6xl").innerText = `${m}:${s}`;
+              document.title = `${m}:${s} - Focus`;
+            }
+            if (timerState.timeLeft <= 0) completeTimer();
+          }
+        }, 1000);
+      };
+
+      window.togglePause = () => {
+        timerState.isPaused = !timerState.isPaused;
+        renderRoom(); // Unlocks/Locks UI based on pause state
+      };
+
+      window.stopTimer = () => {
+        if (confirm("Dừng đồng hồ? Kết quả sẽ không được lưu.")) {
+          clearInterval(timerInterval);
+          const room = state.rooms.find((r) => r.id === state.activeRoomId);
+          timerState.isRunning = false;
+          timerState.timeLeft = room.timerDuration * 60;
+          document.title = "Focus Space";
+          renderRoom();
+        }
+      };
+
+      function completeTimer() {
+        clearInterval(timerInterval);
+        timerState.isRunning = false;
+        const room = state.rooms.find((r) => r.id === state.activeRoomId);
+        timerState.timeLeft = room.timerDuration * 60;
+
+        // Determine type at the moment of completion
+        const isScheduled = room.schedule[getCurrentDayIndex()] === 1;
+        const type = isScheduled ? "scheduled" : "extra";
+
+        saveHistory(room, type);
+
+        document.title = "Focus Space";
+        renderRoom();
+
+        // Celebration
+        var duration = 3000;
+        var end = Date.now() + duration;
+        (function frame() {
+          confetti({
+            particleCount: 5,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+          });
+          confetti({
+            particleCount: 5,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+          });
+          if (Date.now() < end) requestAnimationFrame(frame);
+        })();
+        alert("Hoàn thành phiên học!");
+      }
+
+      window.adjustTimer = (delta) => {
+        const room = state.rooms.find((r) => r.id === state.activeRoomId);
+        let newTime = parseInt(room.timerDuration) + delta;
+        if (newTime < 1) newTime = 1;
+        updateTimerSetting(newTime);
+      };
+
+      window.updateTimerSetting = (val) => {
+        const room = state.rooms.find((r) => r.id === state.activeRoomId);
+        room.timerDuration = parseInt(val);
+        if (!timerState.isRunning) {
+          timerState.timeLeft = room.timerDuration * 60;
+          timerState.originalTime = room.timerDuration * 60;
+        }
+        saveState();
+        renderRoom();
+      };
+
+      // Sub-features
+      window.addLink = () => {
+        const title = document.getElementById("linkTitle").value;
+        const url = document.getElementById("linkUrl").value;
+        if (title && url) {
+          const room = state.rooms.find((r) => r.id === state.activeRoomId);
+          room.links.push({ title, url });
+          saveState();
+          renderRoom();
+        }
+      };
+      window.deleteLink = (i) => {
+        const room = state.rooms.find((r) => r.id === state.activeRoomId);
+        room.links.splice(i, 1);
+        saveState();
+        renderRoom();
+      };
+
+      window.addMusic = () => {
+        const name = document.getElementById("musicName").value || "Track";
+        const url = document.getElementById("musicUrl").value;
+        let id = "";
+        const match = url.match(
+          /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+        );
+        if (match && match[2].length == 11) id = match[2];
+
+        if (id) {
+          const room = state.rooms.find((r) => r.id === state.activeRoomId);
+          room.music.push({ name, id });
+          saveState();
+          renderRoom();
+        } else {
+          alert("Link Youtube không hợp lệ");
+        }
+      };
+      window.deleteMusic = (i) => {
+        const room = state.rooms.find((r) => r.id === state.activeRoomId);
+        room.music.splice(i, 1);
+        saveState();
+        renderRoom();
+      };
+      window.playMusic = (id) => {
+        document.getElementById("youtube-embed").innerHTML = `
+                <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            `;
+      };
+
+      // Init
+      render();
+    </script>
+  </body>
+</html>
